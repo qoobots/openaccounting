@@ -1,0 +1,56 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qoobot.openaccounting.ledger.mapper.GlAccountingPeriodMapper">
+
+    <resultMap id="BaseResultMap" type="com.qoobot.openaccounting.ledger.entity.GlAccountingPeriod">
+        <id column="id" property="id"/>
+        <result column="company_id" property="companyId"/>
+        <result column="accounting_year" property="accountingYear"/>
+        <result column="accounting_period" property="accountingPeriod"/>
+        <result column="start_date" property="startDate"/>
+        <result column="end_date" property="endDate"/>
+        <result column="status" property="status"/>
+        <result column="close_time" property="closeTime"/>
+        <result column="closer_id" property="closerId"/>
+        <result column="closer_name" property="closerName"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="listByCompanyAndYear" resultMap="BaseResultMap">
+        SELECT * FROM gl_accounting_period
+        WHERE company_id = #{companyId}
+        AND accounting_year = #{accountingYear}
+        AND is_deleted = 0
+        ORDER BY accounting_period
+    </select>
+
+    <select id="selectByCompanyAndPeriod" resultMap="BaseResultMap">
+        SELECT * FROM gl_accounting_period
+        WHERE company_id = #{companyId}
+        AND accounting_year = #{accountingYear}
+        AND accounting_period = #{accountingPeriod}
+        AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <select id="selectCurrentOpenedPeriod" resultMap="BaseResultMap">
+        SELECT * FROM gl_accounting_period
+        WHERE company_id = #{companyId}
+        AND status = 'opened'
+        AND is_deleted = 0
+        ORDER BY accounting_year DESC, accounting_period DESC
+        LIMIT 1
+    </select>
+
+    <select id="countUnauditedVouchers" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM gl_voucher
+        WHERE company_id = #{companyId}
+        AND accounting_year = #{accountingYear}
+        AND accounting_period = #{accountingPeriod}
+        AND status IN ('draft', 'submitted')
+        AND is_deleted = 0
+    </select>
+
+</mapper>

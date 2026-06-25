@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qoobot.openaccounting.ledger.mapper.GlAccountMapper">
+
+    <resultMap id="BaseResultMap" type="com.qoobot.openaccounting.ledger.entity.GlAccount">
+        <id column="id" property="id"/>
+        <result column="company_id" property="companyId"/>
+        <result column="account_code" property="accountCode"/>
+        <result column="account_name" property="accountName"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="level" property="level"/>
+        <result column="account_type" property="accountType"/>
+        <result column="balance_direction" property="balanceDirection"/>
+        <result column="auxiliary_dept" property="auxiliaryDept"/>
+        <result column="auxiliary_project" property="auxiliaryProject"/>
+        <result column="auxiliary_customer" property="auxiliaryCustomer"/>
+        <result column="auxiliary_supplier" property="auxiliarySupplier"/>
+        <result column="auxiliary_employee" property="auxiliaryEmployee"/>
+        <result column="status" property="status"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="listByCompanyId" resultMap="BaseResultMap">
+        SELECT * FROM gl_account
+        WHERE company_id = #{companyId}
+        AND is_deleted = 0
+        ORDER BY account_code
+    </select>
+
+    <select id="selectByAccountCode" resultMap="BaseResultMap">
+        SELECT * FROM gl_account
+        WHERE account_code = #{accountCode}
+        AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <select id="listByParentId" resultMap="BaseResultMap">
+        SELECT * FROM gl_account
+        WHERE parent_id = #{parentId}
+        AND is_deleted = 0
+        ORDER BY account_code
+    </select>
+
+    <select id="countChildren" resultType="int">
+        SELECT COUNT(*) FROM gl_account
+        WHERE parent_id = #{parentId}
+        AND is_deleted = 0
+    </select>
+
+    <select id="countUsedInVoucher" resultType="int">
+        SELECT COUNT(*) FROM gl_voucher_entry
+        WHERE account_id = #{accountId}
+        AND is_deleted = 0
+    </select>
+
+    <select id="selectAccountTree" resultMap="BaseResultMap">
+        SELECT * FROM gl_account
+        <where>
+            is_deleted = 0
+            <if test="companyId != null">
+                AND company_id = #{companyId}
+            </if>
+            <if test="status != null">
+                AND status = #{status}
+            </if>
+        </where>
+        ORDER BY account_code
+    </select>
+
+    <delete id="batchDelete">
+        UPDATE gl_account SET is_deleted = 1
+        WHERE id IN
+        <foreach collection="ids" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </delete>
+
+    <select id="selectLeafAccounts" resultMap="BaseResultMap">
+        SELECT * FROM gl_account g1
+        <where>
+            g1.is_deleted = 0
+            <if test="companyId != null">
+                AND g1.company_id = #{companyId}
+            </if>
+            <if test="status != null">
+                AND g1.status = #{status}
+            </if>
+            AND NOT EXISTS (
+                SELECT 1 FROM gl_account g2
+                WHERE g2.parent_id = g1.id
+                AND g2.is_deleted = 0
+            )
+        </where>
+        ORDER BY g1.account_code
+    </select>
+
+</mapper>

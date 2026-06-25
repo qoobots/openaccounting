@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CompilerConfiguration">
+    <annotationProcessing>
+      <profile name="Annotation profile for openaccounting" enabled="true">
+        <sourceOutputDir name="target/generated-sources/annotations" />
+        <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
+        <outputRelativeToContentRoot value="true" />
+        <processorPath useClasspath="false">
+          <entry name="$MAVEN_REPOSITORY$/org/projectlombok/lombok/1.18.42/lombok-1.18.42.jar" />
+        </processorPath>
+        <module name="openaccounting-system" />
+        <module name="openaccounting-workflow" />
+        <module name="openaccounting-common" />
+        <module name="openaccounting-ledger" />
+        <module name="openaccounting-asset" />
+        <module name="openaccounting-report" />
+        <module name="openaccounting-budget" />
+      </profile>
+    </annotationProcessing>
+  </component>
+  <component name="JavacSettings">
+    <option name="ADDITIONAL_OPTIONS_OVERRIDE">
+      <module name="openaccounting" options="-parameters -parameters -parameters -XDignore.symbol.file" />
+      <module name="openaccounting-asset" options="-parameters -parameters -parameters -XDignore.symbol.file" />
+      <module name="openaccounting-budget" options="-parameters -parameters -parameters -XDignore.symbol.file" />
+      <module name="openaccounting-common" options="-parameters -parameters -parameters -XDignore.symbol.file" />
+      <module name="openaccounting-ledger" options="-parameters -parameters -parameters -XDignore.symbol.file" />
+      <module name="openaccounting-report" options="-parameters -parameters -parameters -XDignore.symbol.file" />
+      <module name="openaccounting-system" options="-parameters -parameters -parameters -XDignore.symbol.file" />
+      <module name="openaccounting-workflow" options="-parameters -parameters -parameters -XDignore.symbol.file" />
+    </option>
+  </component>
+</project>

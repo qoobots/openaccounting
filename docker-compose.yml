@@ -1,0 +1,113 @@
+version: '3.8'
+
+services:
+  # MySQL数据库
+  mysql:
+    image: mysql:8.4.0
+    container_name: openaccounting-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: openaccounting
+      TZ: Asia/Shanghai
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./docs:/docker-entrypoint-initdb.d
+    command:
+      - --character-set-server=utf8mb4
+      - --collation-server=utf8mb4_unicode_ci
+    networks:
+      - openaccounting-network
+
+  # 总账模块
+  ledger:
+    build: .
+    container_name: openaccounting-ledger
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/openaccounting?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+    ports:
+      - "8080:8080"
+    depends_on:
+      - mysql
+    networks:
+      - openaccounting-network
+    restart: unless-stopped
+
+  # 报表模块
+  report:
+    build: .
+    container_name: openaccounting-report
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/openaccounting?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SERVER_PORT: 8081
+    ports:
+      - "8081:8081"
+    depends_on:
+      - mysql
+    networks:
+      - openaccounting-network
+    restart: unless-stopped
+
+  # 预算管理模块
+  budget:
+    build: .
+    container_name: openaccounting-budget
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/openaccounting?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SERVER_PORT: 8082
+    ports:
+      - "8082:8082"
+    depends_on:
+      - mysql
+    networks:
+      - openaccounting-network
+    restart: unless-stopped
+
+  # 资产管理模块
+  asset:
+    build: .
+    container_name: openaccounting-asset
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/openaccounting?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SERVER_PORT: 8083
+    ports:
+      - "8083:8083"
+    depends_on:
+      - mysql
+    networks:
+      - openaccounting-network
+    restart: unless-stopped
+
+  # 工作流模块
+  workflow:
+    build: .
+    container_name: openaccounting-workflow
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/openaccounting?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_USERNAME: root
+      SPRING_DATASOURCE_PASSWORD: root
+      SERVER_PORT: 8084
+    ports:
+      - "8084:8084"
+    depends_on:
+      - mysql
+    networks:
+      - openaccounting-network
+    restart: unless-stopped
+
+volumes:
+  mysql-data:
+    driver: local
+
+networks:
+  openaccounting-network:
+    driver: bridge

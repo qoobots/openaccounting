@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qoobot.openaccounting.system.mapper.SysUserMapper">
+
+    <select id="selectUserPage" resultType="com.qoobot.openaccounting.system.vo.SysUserVO">
+        SELECT
+            u.id,
+            u.username,
+            u.nickname,
+            u.real_name,
+            u.avatar,
+            u.phone,
+            u.email,
+            u.gender,
+            u.dept_id,
+            d.name AS dept_name,
+            u.company_id,
+            c.name AS company_name,
+            u.status,
+            u.remark,
+            u.create_time
+        FROM sys_user u
+        LEFT JOIN sys_department d ON u.dept_id = d.id
+        LEFT JOIN sys_company c ON u.company_id = c.id
+        <where>
+            u.deleted = 0
+            <if test="username != null and username != ''">
+                AND u.username LIKE CONCAT('%', #{username}, '%')
+            </if>
+            <if test="phone != null and phone != ''">
+                AND u.phone LIKE CONCAT('%', #{phone}, '%')
+            </if>
+            <if test="status != null">
+                AND u.status = #{status}
+            </if>
+            <if test="deptId != null">
+                AND u.dept_id = #{deptId}
+            </if>
+        </where>
+        ORDER BY u.create_time DESC
+    </select>
+
+</mapper>

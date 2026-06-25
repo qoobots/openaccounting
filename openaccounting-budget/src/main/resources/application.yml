@@ -1,0 +1,16 @@
+spring:
+  application:
+    name: openaccounting-budget
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/openaccounting?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+server:
+  port: 8082
+
+logging:
+  level:
+    com.qoobot.openaccounting.budget: debug

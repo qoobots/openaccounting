@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qoobot.openaccounting.system.mapper.SysPermissionMapper">
+
+    <resultMap id="BaseResultMap" type="com.qoobot.openaccounting.system.entity.SysPermission">
+        <id column="id" property="id"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="permission_name" property="permissionName"/>
+        <result column="permission_code" property="permissionCode"/>
+        <result column="permission_type" property="permissionType"/>
+        <result column="path" property="path"/>
+        <result column="component" property="component"/>
+        <result column="icon" property="icon"/>
+        <result column="method" property="method"/>
+        <result column="sort" property="sort"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <resultMap id="VOResultMap" type="com.qoobot.openaccounting.system.vo.SysPermissionVO" extends="BaseResultMap">
+        <result column="parent_name" property="parentName"/>
+    </resultMap>
+
+    <select id="selectByUserId" resultMap="VOResultMap">
+        SELECT DISTINCT
+            p.*,
+            pp.permission_name AS parent_name
+        FROM sys_permission p
+        LEFT JOIN sys_permission pp ON p.parent_id = pp.id
+        LEFT JOIN sys_role_permission rp ON p.id = rp.permission_id
+        LEFT JOIN sys_user_role ur ON rp.role_id = ur.role_id
+        WHERE ur.user_id = #{userId}
+          AND p.status = 1
+        ORDER BY p.sort ASC
+    </select>
+
+    <select id="selectByRoleId" resultMap="VOResultMap">
+        SELECT
+            p.*,
+            pp.permission_name AS parent_name
+        FROM sys_permission p
+        LEFT JOIN sys_permission pp ON p.parent_id = pp.id
+        LEFT JOIN sys_role_permission rp ON p.id = rp.permission_id
+        WHERE rp.role_id = #{roleId}
+          AND p.status = 1
+        ORDER BY p.sort ASC
+    </select>
+
+    <select id="selectByParentId" resultMap="BaseResultMap">
+        SELECT * FROM sys_permission WHERE parent_id = #{parentId} ORDER BY sort ASC
+    </select>
+
+</mapper>

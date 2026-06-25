@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qoobot.openaccounting.ledger.mapper.GlVoucherEntryMapper">
+
+    <resultMap id="BaseResultMap" type="com.qoobot.openaccounting.ledger.entity.GlVoucherEntry">
+        <id column="id" property="id"/>
+        <result column="voucher_id" property="voucherId"/>
+        <result column="line_no" property="lineNo"/>
+        <result column="account_id" property="accountId"/>
+        <result column="account_code" property="accountCode"/>
+        <result column="account_name" property="accountName"/>
+        <result column="abstract" property="abstract"/>
+        <result column="debit_amount" property="debitAmount"/>
+        <result column="credit_amount" property="creditAmount"/>
+        <result column="currency" property="currency"/>
+        <result column="exchange_rate" property="exchangeRate"/>
+        <result column="dept_id" property="deptId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="customer_id" property="customerId"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="employee_id" property="employeeId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="listByVoucherId" resultMap="BaseResultMap">
+        SELECT * FROM gl_voucher_entry
+        WHERE voucher_id = #{voucherId}
+        AND is_deleted = 0
+        ORDER BY line_no
+    </select>
+
+    <insert id="batchInsert">
+        INSERT INTO gl_voucher_entry (
+            voucher_id, line_no, account_id, account_code, account_name, abstract,
+            debit_amount, credit_amount, currency, exchange_rate,
+            dept_id, project_id, customer_id, supplier_id, employee_id
+        ) VALUES
+        <foreach collection="entries" item="entry" separator=",">
+            (
+                #{entry.voucherId}, #{entry.lineNo}, #{entry.accountId}, #{entry.accountCode},
+                #{entry.accountName}, #{entry.abstract}, #{entry.debitAmount}, #{entry.creditAmount},
+                #{entry.currency}, #{entry.exchangeRate}, #{entry.deptId}, #{entry.projectId},
+                #{entry.customerId}, #{entry.supplierId}, #{entry.employeeId}
+            )
+        </foreach>
+    </insert>
+
+    <delete id="deleteByVoucherId">
+        UPDATE gl_voucher_entry SET is_deleted = 1
+        WHERE voucher_id = #{voucherId}
+    </delete>
+
+    <select id="countByAccountId" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM gl_voucher_entry
+        WHERE account_id = #{accountId}
+        AND is_deleted = 0
+    </select>
+
+</mapper>

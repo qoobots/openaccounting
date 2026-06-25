@@ -1,0 +1,11 @@
+com\qoobot\openaccounting\common\exception\GlobalExceptionHandler.class
+com\qoobot\openaccounting\common\constant\ResultCode.class
+com\qoobot\openaccounting\common\Result.class
+com\qoobot\openaccounting\common\utils\IdGenerator.class
+com\qoobot\openaccounting\common\enums\YesNoEnum.class
+com\qoobot\openaccounting\common\utils\JsonUtils.class
+com\qoobot\openaccounting\common\exception\BusinessException.class
+com\qoobot\openaccounting\common\annotation\IgnoreResponseWrapper.class
+com\qoobot\openaccounting\common\base\BaseEntity.class
+com\qoobot\openaccounting\common\exception\DataNotFoundException.class
+com\qoobot\openaccounting\common\enums\DeletedEnum.class

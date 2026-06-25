@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qoobot.openaccounting.system.mapper.SysCompanyMapper">
+
+    <resultMap id="BaseResultMap" type="com.qoobot.openaccounting.system.entity.SysCompany">
+        <id column="id" property="id"/>
+        <result column="parent_id" property="parentId"/>
+        <result column="company_name" property="companyName"/>
+        <result column="company_code" property="companyCode"/>
+        <result column="social_credit_code" property="socialCreditCode"/>
+        <result column="legal_person" property="legalPerson"/>
+        <result column="contact_phone" property="contactPhone"/>
+        <result column="address" property="address"/>
+        <result column="sort" property="sort"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <resultMap id="VOResultMap" type="com.qoobot.openaccounting.system.vo.SysCompanyVO" extends="BaseResultMap">
+        <result column="parent_name" property="parentName"/>
+    </resultMap>
+
+    <select id="selectCompanyPage" resultMap="VOResultMap">
+        SELECT
+            c.*,
+            p.company_name AS parent_name
+        FROM sys_company c
+        LEFT JOIN sys_company p ON c.parent_id = p.id
+        <where>
+            <if test="companyName != null and companyName != ''">
+                AND c.company_name LIKE CONCAT('%', #{companyName}, '%')
+            </if>
+            <if test="status != null">
+                AND c.status = #{status}
+            </if>
+        </where>
+        ORDER BY c.sort ASC, c.create_time DESC
+    </select>
+
+    <select id="selectByParentId" resultMap="BaseResultMap">
+        SELECT * FROM sys_company WHERE parent_id = #{parentId} ORDER BY sort ASC
+    </select>
+
+</mapper>

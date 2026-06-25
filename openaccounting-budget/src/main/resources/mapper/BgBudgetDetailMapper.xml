@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qoobot.openaccounting.budget.mapper.BgBudgetDetailMapper">
+
+    <resultMap id="BaseResultMap" type="com.qoobot.openaccounting.budget.entity.BgBudgetDetail">
+        <id column="id" property="id"/>
+        <result column="budget_id" property="budgetId"/>
+        <result column="account_id" property="accountId"/>
+        <result column="account_code" property="accountCode"/>
+        <result column="account_name" property="accountName"/>
+        <result column="period" property="period"/>
+        <result column="budget_amount" property="budgetAmount"/>
+        <result column="actual_amount" property="actualAmount"/>
+        <result column="difference" property="difference"/>
+        <result column="execution_rate" property="executionRate"/>
+    </resultMap>
+
+    <select id="listByBudgetId" resultMap="BaseResultMap">
+        SELECT * FROM bg_budget_detail
+        WHERE budget_id = #{budgetId}
+        AND is_deleted = 0
+        ORDER BY account_code, period
+    </select>
+
+    <insert id="batchInsert">
+        INSERT INTO bg_budget_detail (
+            budget_id, account_id, account_code, account_name, period,
+            budget_amount, actual_amount, difference, execution_rate
+        ) VALUES
+        <foreach collection="details" item="detail" separator=",">
+            (
+                #{detail.budgetId}, #{detail.accountId}, #{detail.accountCode},
+                #{detail.accountName}, #{detail.period}, #{detail.budgetAmount},
+                #{detail.actualAmount}, #{detail.difference}, #{detail.executionRate}
+            )
+        </foreach>
+    </insert>
+
+</mapper>

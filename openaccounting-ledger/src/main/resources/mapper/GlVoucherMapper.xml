@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qoobot.openaccounting.ledger.mapper.GlVoucherMapper">
+
+    <resultMap id="BaseResultMap" type="com.qoobot.openaccounting.ledger.entity.GlVoucher">
+        <id column="id" property="id"/>
+        <result column="company_id" property="companyId"/>
+        <result column="voucher_no" property="voucherNo"/>
+        <result column="accounting_year" property="accountingYear"/>
+        <result column="accounting_period" property="accountingPeriod"/>
+        <result column="voucher_date" property="voucherDate"/>
+        <result column="voucher_type" property="voucherType"/>
+        <result column="abstract" property="abstract"/>
+        <result column="total_debit" property="totalDebit"/>
+        <result column="total_credit" property="totalCredit"/>
+        <result column="entry_count" property="entryCount"/>
+        <result column="status" property="status"/>
+        <result column="maker_id" property="makerId"/>
+        <result column="maker_name" property="makerName"/>
+        <result column="audit_time" property="auditTime"/>
+        <result column="auditor_id" property="auditorId"/>
+        <result column="auditor_name" property="auditorName"/>
+        <result column="post_time" property="postTime"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="selectByVoucherNo" resultMap="BaseResultMap">
+        SELECT * FROM gl_voucher
+        WHERE voucher_no = #{voucherNo}
+        AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <select id="selectMaxVoucherNo" resultType="java.lang.Long">
+        SELECT CAST(SUBSTRING(voucher_no, 8) AS UNSIGNED) AS max_no
+        FROM gl_voucher
+        WHERE company_id = #{companyId}
+        AND accounting_year = #{accountingYear}
+        AND accounting_period = #{accountingPeriod}
+        AND is_deleted = 0
+        ORDER BY voucher_no DESC
+        LIMIT 1
+    </select>
+
+    <select id="selectVoucherPage" resultMap="BaseResultMap">
+        SELECT * FROM gl_voucher
+        <where>
+            is_deleted = 0
+            <if test="companyId != null">
+                AND company_id = #{companyId}
+            </if>
+            <if test="accountingYear != null">
+                AND accounting_year = #{accountingYear}
+            </if>
+            <if test="accountingPeriod != null">
+                AND accounting_period = #{accountingPeriod}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+            <if test="voucherNo != null and voucherNo != ''">
+                AND voucher_no LIKE CONCAT('%', #{voucherNo}, '%')
+            </if>
+            <if test="startDate != null">
+                AND voucher_date >= #{startDate}
+            </if>
+            <if test="endDate != null">
+                AND voucher_date &lt;= #{endDate}
+            </if>
+        </where>
+        ORDER BY voucher_date DESC, voucher_no DESC
+    </select>
+
+    <select id="countVouchers" resultType="java.lang.Long">
+        SELECT COUNT(*) FROM gl_voucher
+        <where>
+            is_deleted = 0
+            <if test="companyId != null">
+                AND company_id = #{companyId}
+            </if>
+            <if test="accountingYear != null">
+                AND accounting_year = #{accountingYear}
+            </if>
+            <if test="accountingPeriod != null">
+                AND accounting_period = #{accountingPeriod}
+            </if>
+            <if test="status != null and status != ''">
+                AND status = #{status}
+            </if>
+        </where>
+    </select>
+
+    <update id="updateStatus">
+        UPDATE gl_voucher SET status = #{status}
+        WHERE id = #{id}
+        AND is_deleted = 0
+    </update>
+
+    <update id="updateAuditInfo">
+        UPDATE gl_voucher
+        SET status = 'audited',
+            auditor_id = #{auditorId},
+            auditor_name = #{auditorName},
+            audit_time = NOW()
+        WHERE id = #{id}
+        AND is_deleted = 0
+    </update>
+
+    <update id="updatePostInfo">
+        UPDATE gl_voucher
+        SET status = 'posted',
+            post_time = NOW()
+        WHERE id = #{id}
+        AND is_deleted = 0
+    </update>
+
+</mapper>

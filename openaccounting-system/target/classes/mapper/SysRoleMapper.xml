@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qoobot.openaccounting.system.mapper.SysRoleMapper">
+
+    <resultMap id="BaseResultMap" type="com.qoobot.openaccounting.system.entity.SysRole">
+        <id column="id" property="id"/>
+        <result column="role_name" property="roleName"/>
+        <result column="role_code" property="roleCode"/>
+        <result column="data_scope" property="dataScope"/>
+        <result column="sort" property="sort"/>
+        <result column="status" property="status"/>
+        <result column="remark" property="remark"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+        <result column="create_by" property="createBy"/>
+        <result column="update_by" property="updateBy"/>
+    </resultMap>
+
+    <resultMap id="VOResultMap" type="com.qoobot.openaccounting.system.vo.SysRoleVO" extends="BaseResultMap">
+        <collection property="permissions" ofType="com.qoobot.openaccounting.system.vo.SysRoleVO$PermissionInfo">
+            <result column="perm_id" property="id"/>
+            <result column="perm_name" property="permissionName"/>
+            <result column="perm_code" property="permissionCode"/>
+        </collection>
+    </resultMap>
+
+    <select id="selectRolePage" resultMap="VOResultMap">
+        SELECT
+            r.*,
+            p.id AS perm_id,
+            p.permission_name AS perm_name,
+            p.permission_code AS perm_code
+        FROM sys_role r
+        LEFT JOIN sys_role_permission rp ON r.id = rp.role_id
+        LEFT JOIN sys_permission p ON rp.permission_id = p.id
+        <where>
+            <if test="roleName != null and roleName != ''">
+                AND r.role_name LIKE CONCAT('%', #{roleName}, '%')
+            </if>
+            <if test="status != null">
+                AND r.status = #{status}
+            </if>
+        </where>
+        ORDER BY r.sort ASC, r.create_time DESC
+    </select>
+
+    <select id="selectRoleById" resultMap="VOResultMap">
+        SELECT
+            r.*,
+            p.id AS perm_id,
+            p.permission_name AS perm_name,
+            p.permission_code AS perm_code
+        FROM sys_role r
+        LEFT JOIN sys_role_permission rp ON r.id = rp.role_id
+        LEFT JOIN sys_permission p ON rp.permission_id = p.id
+        WHERE r.id = #{id}
+    </select>
+
+    <select id="selectByRoleCode" resultMap="BaseResultMap">
+        SELECT * FROM sys_role WHERE role_code = #{roleCode}
+    </select>
+
+</mapper>

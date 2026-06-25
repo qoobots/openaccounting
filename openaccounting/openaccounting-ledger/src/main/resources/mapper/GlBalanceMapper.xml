@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.qoobot.openaccounting.ledger.mapper.GlBalanceMapper">
+
+    <resultMap id="BaseResultMap" type="com.qoobot.openaccounting.ledger.entity.GlBalance">
+        <id column="id" property="id"/>
+        <result column="company_id" property="companyId"/>
+        <result column="account_id" property="accountId"/>
+        <result column="account_code" property="accountCode"/>
+        <result column="account_name" property="accountName"/>
+        <result column="accounting_year" property="accountingYear"/>
+        <result column="accounting_period" property="accountingPeriod"/>
+        <result column="beginning_debit" property="beginningDebit"/>
+        <result column="beginning_credit" property="beginningCredit"/>
+        <result column="current_debit" property="currentDebit"/>
+        <result column="current_credit" property="currentCredit"/>
+        <result column="ending_debit" property="endingDebit"/>
+        <result column="ending_credit" property="endingCredit"/>
+        <result column="dept_id" property="deptId"/>
+        <result column="project_id" property="projectId"/>
+        <result column="customer_id" property="customerId"/>
+        <result column="supplier_id" property="supplierId"/>
+        <result column="employee_id" property="employeeId"/>
+        <result column="create_time" property="createTime"/>
+        <result column="update_time" property="updateTime"/>
+    </resultMap>
+
+    <select id="selectByAccountAndPeriod" resultMap="BaseResultMap">
+        SELECT * FROM gl_balance
+        WHERE company_id = #{companyId}
+        AND account_id = #{accountId}
+        AND accounting_year = #{accountingYear}
+        AND accounting_period = #{accountingPeriod}
+        AND is_deleted = 0
+        LIMIT 1
+    </select>
+
+    <select id="listBalances" resultMap="BaseResultMap">
+        SELECT * FROM gl_balance
+        WHERE company_id = #{companyId}
+        AND accounting_year = #{accountingYear}
+        AND accounting_period BETWEEN #{startPeriod} AND #{endPeriod}
+        <if test="accountIds != null and accountIds.size() > 0">
+            AND account_id IN
+            <foreach collection="accountIds" item="id" open="(" separator="," close=")">
+                #{id}
+            </foreach>
+        </if>
+        AND is_deleted = 0
+        ORDER BY account_code, accounting_period
+    </select>
+
+    <select id="selectGeneralLedger" resultMap="BaseResultMap">
+        SELECT b.* FROM gl_balance b
+        <where>
+            b.company_id = #{companyId}
+            AND b.accounting_year = #{accountingYear}
+            AND b.accounting_period = #{endPeriod}
+            <if test="accountCodeLike != null and accountCodeLike != ''">
+                AND b.account_code LIKE CONCAT('%', #{accountCodeLike}, '%')
+            </if>
+            <if test="accountNameLike != null and accountNameLike != ''">
+                AND b.account_name LIKE CONCAT('%', #{accountNameLike}, '%')
+            </if>
+            <if test="onlyWithBalance == true">
+                AND (b.ending_debit > 0 OR b.ending_credit > 0)
+            </if>
+            AND b.is_deleted = 0
+        </where>
+        ORDER BY b.account_code
+    </select>
+
+    <insert id="batchInsert">
+        INSERT INTO gl_balance (
+            company_id, account_id, account_code, account_name, accounting_year, accounting_period,
+            beginning_debit, beginning_credit, current_debit, current_credit,
+            ending_debit, ending_credit,
+            dept_id, project_id, customer_id, supplier_id, employee_id
+        ) VALUES
+        <foreach collection="balances" item="balance" separator=",">
+            (
+                #{balance.companyId}, #{balance.accountId}, #{balance.accountCode}, #{balance.accountName},
+                #{balance.accountingYear}, #{balance.accountingPeriod},
+                #{balance.beginningDebit}, #{balance.beginningCredit}, #{balance.currentDebit}, #{balance.currentCredit},
+                #{balance.endingDebit}, #{balance.endingCredit},
+                #{balance.deptId}, #{balance.projectId}, #{balance.customerId}, #{balance.supplierId}, #{balance.employeeId}
+            )
+        </foreach>
+    </insert>
+
+    <update id="updateBalance">
+        UPDATE gl_balance SET
+            beginning_debit = #{balance.beginningDebit},
+            beginning_credit = #{balance.beginningCredit},
+            current_debit = #{balance.currentDebit},
+            current_credit = #{balance.currentCredit},
+            ending_debit = #{balance.endingDebit},
+            ending_credit = #{balance.endingCredit}
+        WHERE id = #{balance.id}
+        AND is_deleted = 0
+    </update>
+
+</mapper>

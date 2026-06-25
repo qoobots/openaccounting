@@ -1,0 +1,22 @@
+spring:
+  application:
+    name: openaccounting-workflow
+
+  datasource:
+    url: jdbc:mysql://localhost:3306/openaccounting?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai
+    username: root
+    password: root
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+  flowable:
+    database-schema-update: true
+    async-executor-activate: true
+    history-level: audit
+
+server:
+  port: 8084
+
+logging:
+  level:
+    com.qoobot.openaccounting.workflow: debug
+    org.flowable: debug
